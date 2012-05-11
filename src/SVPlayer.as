@@ -80,7 +80,7 @@ final function connect():void
         var nc:NetConnection = new NetConnection();
         nc.client = nsClient;
         nc.addEventListener(NetStatusEvent.NET_STATUS,onNetStatus);
-        nc.connect("rtmp://195.110.52.107:1935/stream/serf");
+        nc.connect("rtmp://195.110.52.107:1935/stream/");
         textField.text = "Connect..";
     }
 
@@ -94,7 +94,7 @@ final function connect():void
             textField.text = "Success..";
             ns = new NetStream(nc);
             ns.client = nsClient;
-            ns.play("serf");
+            ns.play("serf_full");
             textField.text = "Play..";
             if (availabilityStageVideo){
                 textField.text = "GPU rendering";
