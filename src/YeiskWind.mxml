@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   addedToStage="application2_addedToStageHandler(event)"
+			   backgroundAlpha="0"
+			   xmlns:s="library://ns.adobe.com/flex/spark" applicationDPI="160" xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Script>
+		<![CDATA[
+        import mx.events.FlexEvent;
+
+		private var sv:SoulVplayer;
+        protected function application2_addedToStageHandler(event:Event):void {
+
+            sv = new SoulVplayer();
+//            ssd.initFile("mars.mp4");
+            sv.setStream("rtmp://195.110.52.107:1935/stream/","serf");
+			cont.addChild(sv);
+        }
+        ]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Разместить невизуальные элементы (например, службы или объекты значений) -->
+	</fx:Declarations>
+	<mx:UIComponent id="cont" height="100%" width="100%"/> 
+	<s:Label x="10" y="39" id="gpuLabel" /> 
+	<s:Button x="10" y="68" label="HD" click="{sv.playChannel('serf_full')}"/>
+	<s:Button x="10" y="119" label="SD" click="{sv.playChannel('serf')}"/>
+	<s:Button x="10" y="170" label="GPU" click="{sv.swithStageVideo()}"/>
+	<s:Button x="10" y="221" label="CPU" click="{sv.swithClassicVideo()}"/>
+</s:Application>
