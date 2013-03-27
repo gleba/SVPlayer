@@ -74,9 +74,6 @@ public class SoulVplayer extends Sprite{
 
     public function playChannel(channel:String):void{
         streamName = channel;
-//        if (connected)
-//            ns.play(channel);
-//		else
 			reConnect();
     }
     public function playFile(s:String):void {
@@ -145,15 +142,11 @@ public class SoulVplayer extends Sprite{
         logInfo("initStream")
         if (ns){
             ns.close();
-//            ns.dispose();
             ns.removeEventListener(NetStatusEvent.NET_STATUS, onStreamStatus)
         }
             ns = new NetStream(nc);
             ns.addEventListener(NetStatusEvent.NET_STATUS, onStreamStatus);
             ns.client = this;
-//        } else {
-//            ns.attach(nc);
-//        }
         // Screen
         if(!video){
             video = new Video();
@@ -161,7 +154,7 @@ public class SoulVplayer extends Sprite{
             video.addEventListener(VideoEvent.RENDER_STATE, videoStateChange);
         }
         // Video Events
-        // the StageVideoEvent.STAGE_VIDEO_STATE informs you if StageVideo is available or not
+
         if(detected)
             toggleStageVideo(available);
         else
@@ -177,6 +170,7 @@ public class SoulVplayer extends Sprite{
     private function onStageVideoState(event:StageVideoAvailabilityEvent):void
     {
         detected = true;
+//        trace("onStageVideoState", event);
         available = inited = (event.availability == StageVideoAvailability.AVAILABLE);
         if (connected)
             toggleStageVideo(available);
@@ -184,9 +178,9 @@ public class SoulVplayer extends Sprite{
 
     private function toggleStageVideo(on:Boolean):void
     {
-        infos = "StageVideo Running (Direct path) : " + on + "\n";
+        infos = "Running (Direct path) : " + on + "\n";
 		
-		logInfo("toggleStageVideo "+on);
+		logInfo("toggle SV: "+on);
         // If we choose StageVideo we attach the NetStream to StageVideo
 
         if (on)
@@ -222,7 +216,6 @@ public class SoulVplayer extends Sprite{
                 ns.play(filename);
             if (streamName)
                 ns.play(streamName);
-
         }
     }
 
@@ -253,12 +246,14 @@ public class SoulVplayer extends Sprite{
     }
 
     private function stageVideoStateChange(event:StageVideoEvent):void{
-        logInfo("StageVideoEvent Render State : " + event.status);
+        logInfo("Render S State : " + event.status);
+        dispatchEvent(new Event("played"));
         resize();
     }
 
     private function videoStateChange(event:VideoEvent):void{
-        logInfo("VideoEvent Render State : " + event.status);
+        logInfo("Render V State : " + event.status);
+        dispatchEvent(new Event("played"));
         resize();
     }
 
@@ -318,8 +313,9 @@ public class SoulVplayer extends Sprite{
 
     public var onInfo:Function;
     public function logInfo(o:Object):void{
-        if(onInfo!=null)
+        if(onInfo!=null){
             onInfo(o.toString());
+        }
     }
 }
 }

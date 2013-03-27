@@ -1,5 +1,5 @@
 package {
-	
+
 	import flash.display.SimpleButton;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
@@ -25,10 +25,11 @@ package {
 			intro = new GfxIntro();
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
+//            stage.displayState = StageDisplayState.FWindPlayer.swf;
 			sv.setStream("rtmp://195.110.52.107:1935/stream/","serf");
 			addChild(intro);
-			intro.addEventListener(MouseEvent.CLICK, intro_clickHandler);
 			addEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
+
 			sv.onInfo = onInfo
 		}
 		
@@ -49,13 +50,25 @@ package {
 				logo.y = stage.stageHeight;
 			}
 		}
-		
+
+        private function addedToStageHandler(event:Event):void {
+            resize();
+            sv.initStage(stage);
+            stage.addEventListener(Event.RESIZE, resizeHandler);
+            stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
+            stage.addEventListener(MouseEvent.MIDDLE_MOUSE_DOWN, stage_clickHandlerExt);
+            stage.addEventListener(MouseEvent.RIGHT_MOUSE_DOWN, stage_clickHandlerExt);
+            stage.addEventListener(MouseEvent.MOUSE_DOWN, stage_clickHandler);
+            sv.addEventListener("played", sv_playedHandler);
+            start();
+        }
+
+
+
 		private var infoField:TextField;
-		private function intro_clickHandler(event:MouseEvent):void {
+		private function start():void {
 			info = new GfxInfo();
 			addChild(sv);
-			intro.removeEventListener(MouseEvent.CLICK, intro_clickHandler);
-			removeChild(intro);
 			logo = new GfxLogo();
 			resize();
 			addChild(logo);
@@ -69,12 +82,7 @@ package {
 			resize();
 		}
 		
-		private function addedToStageHandler(event:Event):void {
-			resize();
-			sv.initStage(stage);
-			stage.addEventListener(Event.RESIZE, resizeHandler);
-			stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
-		}
+
 		
 		private function keyDownHandler(event:KeyboardEvent):void {
 			trace(event.keyCode);
@@ -117,16 +125,20 @@ package {
 				}
 				case Keyboard.SPACE:
 				{
-					if ( stage.displayState == StageDisplayState.NORMAL)
-						stage.displayState = StageDisplayState.FULL_SCREEN
-					else
-						stage.displayState = StageDisplayState.NORMAL
+                    if ( stage.displayState == StageDisplayState.NORMAL){
+                        stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE
+                        mouseKeys = true
+                    } else {
+                        stage.displayState = StageDisplayState.NORMAL
+                        mouseKeys = false
+                    }
 					break;
 				}
 				case Keyboard.CONTROL:
 				{
 					if (info)
 						info.visible = !info.visible;
+                    infoShow = !infoShow;
 					break;
 				}
 					
@@ -136,13 +148,16 @@ package {
 				}
 			}
 		}
-		
-		private var currentChannel:String = "surf";
+
+        private var infoShow:Boolean = false;
+
+        private var currentChannel:String = "serf";
 		private var hd:Boolean = false;
 		private function playChannel(channelName:String):void{
 			currentChannel = channelName;
 			hd = false;
 			sv.playChannel(currentChannel);
+            info.visible = true;
 		}
 		
 		private function switcHD():void{
@@ -154,6 +169,32 @@ package {
 				sv.playChannel(currentChannel+"_full")
 			}
 		}
-		
-	}
+
+        private var mouseKeys:Boolean = false;
+        private function stage_clickHandler(event:MouseEvent):void {
+            if (!mouseKeys)
+                if ( stage.displayState == StageDisplayState.NORMAL){
+                    stage.displayState = StageDisplayState.FULL_SCREEN
+                }else{
+                    stage.displayState = StageDisplayState.NORMAL
+                }
+        }
+
+        private function stage_clickHandlerExt(event:MouseEvent):void {
+            if ( stage.displayState == StageDisplayState.NORMAL){
+                stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE
+                mouseKeys = true
+            } else {
+                stage.displayState = StageDisplayState.NORMAL
+                mouseKeys = false
+            }
+        }
+
+        private function sv_playedHandler(event:Event):void {
+            if (info)
+                if (info.visible)
+                    if (!infoShow)
+                        info.visible = false;
+        }
+    }
 }
